@@ -1,6 +1,7 @@
 import { generateWebhookEvent, CheckoutSession } from '../../../utils/stripe';
 
-export async function stripeWebhook(ctx: any){
+// Stripe webhook functionality
+async function stripeWebhook(ctx: any){
     const sig = ctx.request.headers['stripe-signature'];
     if (!sig) return ctx.badRequest('Missing Stripe signature');
 
@@ -21,4 +22,8 @@ export async function stripeWebhook(ctx: any){
         default:
             return ctx.badRequest('Unhandled event type');
     }
+}
+
+export default {
+  stripeWebhook
 }

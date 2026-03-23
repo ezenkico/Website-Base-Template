@@ -1,9 +1,12 @@
 import stripe from 'stripe';
 import { generateToken } from './helper';
 
-const Stripe = new stripe(process.env.STRIPE_KEY ?? "");
+let Stripe: stripe | null = null;
 
 export async function getInvoices(stripeID: string, limit?: number){
+    if(Stripe == null){
+        Stripe = new stripe(process.env.STRIPE_KEY ?? "");
+    }
   return await Stripe.invoices.search({
     query: `customer:'${stripeID}'`,
     limit
@@ -11,6 +14,9 @@ export async function getInvoices(stripeID: string, limit?: number){
 }
 
 export async function genCheckout(price: number, product: string, provider: string, email: string, discount?: string) {
+    if(Stripe == null){
+        Stripe = new stripe(process.env.STRIPE_KEY ?? "");
+    }
     const token = generateToken({
         product,
         value: price,
@@ -46,6 +52,9 @@ export async function genCheckout(price: number, product: string, provider: stri
 }
 
 export function generateWebhookEvent(payload: string | Buffer, header: string | Buffer | Array<string>){
+    if(Stripe == null){
+        Stripe = new stripe(process.env.STRIPE_KEY ?? "");
+    }
     return Stripe.webhooks.constructEvent(payload, header, process.env.STRIPE_ENDPOINT_SECRET ?? "")
 }
 

@@ -19,7 +19,7 @@ export default {
     {
      method: 'POST',
      path: '/v1/stripe',
-     handler: 'vone.stripeWebhook',
+     handler: 'stripe.stripeWebhook',
      config: {
         auth: false,
         policies: [],
