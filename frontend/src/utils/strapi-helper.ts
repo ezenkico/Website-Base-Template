@@ -5,7 +5,8 @@ import type {
   StrapiLoginRequest,
   StrapiLoginResponse,
   StrapiUser,
-  StrapiRegisterRequest
+  StrapiRegisterRequest,
+  StrapiMedia
 } from "@/types/strapi";
 
 export interface LogicalFilter {
@@ -278,6 +279,31 @@ export function modifyImageUrl(baseUrl: string, imageFormats: {[key: string]: Im
     Object.keys(imageFormats).forEach(key => {
         imageFormats[key].url = `${baseUrl}${imageFormats[key].url}`;
     });
+}
+
+// Helper to get full image URL
+export const getFullImageUrl = (image: any, endpoint: StrapiEndpoints): string | undefined => {
+    const imageUrl = getImageUrl(image);
+    if (!imageUrl) return undefined;
+    // If URL is already absolute, return as is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        return imageUrl;
+    }
+    // Otherwise, prepend Strapi frontend URL
+    return `${endpoint.frontend}${imageUrl}`;
+};
+
+export function getImageUrl(m?: StrapiMedia): string | undefined {
+  if (!m) return undefined;
+  // prefer a reasonable responsive size if present
+  const formats = m.formats ?? {};
+  return (
+    formats.large?.url ||
+    formats.medium?.url ||
+    formats.small?.url ||
+    formats.thumbnail?.url ||
+    m.url
+  );
 }
 
 // strapi login functionality

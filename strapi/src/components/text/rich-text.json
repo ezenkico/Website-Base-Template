@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_text_rich_texts",
+  "info": {
+    "displayName": "Rich Text"
+  },
+  "options": {},
+  "attributes": {
+    "body": {
+      "type": "richtext"
+    },
+    "Orientation": {
+      "type": "enumeration",
+      "default": "Left",
+      "enum": [
+        "Left",
+        "Center",
+        "Right"
+      ]
+    }
+  },
+  "config": {}
+}

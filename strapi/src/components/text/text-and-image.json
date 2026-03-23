@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_text_text_and_images",
+  "info": {
+    "displayName": "Text and Image"
+  },
+  "options": {},
+  "attributes": {
+    "Text": {
+      "type": "richtext"
+    },
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "imagePosition": {
+      "type": "enumeration",
+      "default": "Right",
+      "enum": [
+        "Left",
+        "Right"
+      ]
+    }
+  },
+  "config": {}
+}

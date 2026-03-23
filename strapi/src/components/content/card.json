@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_content_cards",
+  "info": {
+    "displayName": "Card"
+  },
+  "options": {},
+  "attributes": {
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Link": {
+      "type": "string"
+    },
+    "Text": {
+      "type": "richtext"
+    }
+  },
+  "config": {}
+}

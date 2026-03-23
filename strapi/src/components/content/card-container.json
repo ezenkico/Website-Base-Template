@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_content_card_containers",
+  "info": {
+    "displayName": "Card Container"
+  },
+  "options": {},
+  "attributes": {
+    "Cards": {
+      "type": "component",
+      "component": "content.card",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

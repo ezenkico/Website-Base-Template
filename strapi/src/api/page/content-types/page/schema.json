@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pages",
+  "info": {
+    "singularName": "page",
+    "pluralName": "pages",
+    "displayName": "Page"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Label": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid"
+    },
+    "page_content": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::page-content.page-content",
+      "mappedBy": "page"
+    },
+    "show": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

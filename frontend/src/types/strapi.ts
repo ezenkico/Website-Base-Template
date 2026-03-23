@@ -4,6 +4,17 @@ export interface StrapiEndpoints{
   frontend: string
 }
 
+export type StrapiMedia = {
+  url?: string;
+  alternativeText?: string | null;
+  caption?: string | null;
+  mime?: string;
+  name?: string;
+  width?: number;
+  height?: number;
+  formats?: Record<string, { url?: string; width?: number; height?: number }>;
+};
+
 export interface ImageFormat{
     ext: string,
     url: string,
