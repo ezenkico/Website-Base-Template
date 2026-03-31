@@ -44,7 +44,6 @@ function UnknownBlock({ block }: BlockRendererProps) {
 
 export default function PageContents({ content, endpoint }: { content: StrapiComponentBlock[], endpoint: StrapiEndpoints }) {
   if (!Array.isArray(content) || content.length === 0) return null;
-  console.log(content);
 
   return (
     <>

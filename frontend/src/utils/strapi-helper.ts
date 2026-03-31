@@ -40,6 +40,7 @@ export interface GetData {
   on?: {
     [componentUID: string]: GetData;
   };
+  status?: "draft" | "published"
 }
 
 interface KeyChain{
@@ -134,6 +135,13 @@ function buildStrapiItems(query: GetData): KeyChain[]{
         });
     }
 
+    if(query.status){
+      result.push({
+        path: ["status"],
+        value: query.status
+      })
+    }
+
     if (query.on) {
         Object.entries(query.on).forEach(([component, data]) => {
             const nested = buildStrapiItems(data);
@@ -218,7 +226,6 @@ export async function getStrapiDataFromUrl(
   const url = `${baseUrl}/api/${encodeURIComponent(collection)}${
     searchData == null ? "" : `?${buildStrapiQuery(searchData)}`
   }`;
-  console.log(url);
 
   const response = await fetch(url, {
     method: "GET",
@@ -236,11 +243,21 @@ export async function getStrapiDataById(
     endpoint: StrapiEndpoints,
     collection: string,
     id: string | number,
-    populateData?: GetData
+    populateData?: GetData,
+    apiToken?: string
 ): Promise<StrapiGetResponse>{
     const queryString = populateData ? `?${buildStrapiQuery(populateData)}` : "";
+
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (apiToken) {
+      headers["Authorization"] = `Bearer ${apiToken}`;
+    }
     return await (await sendRequest(endpoint, `/api/${encodeURIComponent(collection)}/${id}${queryString}`, {
-        method: "GET"
+        method: "GET",
+        headers
     })).json();
 }
 

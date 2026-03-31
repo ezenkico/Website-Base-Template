@@ -1,7 +1,7 @@
 import { StrapiEndpoints } from "@/types/strapi";
 import { GetData, getStrapiData, getStrapiDataById } from "./strapi-helper";
 
-const populateFuctions: {[key: string]: (data: any, strapiEndpoint: StrapiEndpoints) => Promise<any>} = {
+const populateFuctions: {[key: string]: (data: any, strapiEndpoint: StrapiEndpoints, apiToken?: string, draft?: boolean) => Promise<any>} = {
 }
 
 type ComponentPopulateRegistry = {
@@ -71,25 +71,27 @@ interface PageContentData{
     content?: any[]
 }
 
-async function getContent(page: PageContentData, strapiEndpoint: StrapiEndpoints): Promise<PageContentData>{
+async function getContent(page: PageContentData, strapiEndpoint: StrapiEndpoints, apiToken?: string, draft?: boolean): Promise<PageContentData>{
+    const popData: GetData = draft ? {
+        ...populatePageContentBase(),
+        status: "draft"
+    } : populatePageContentBase();
     return (await getStrapiDataById(
         strapiEndpoint,
         "page-contents",
         page.documentId,
-        populatePageContentBase()
+        popData
     )).data;
 }
 
-export async function fullContentResolve(page: PageContentData, strapiEndpoint: StrapiEndpoints): Promise<PageContentData> {
-    page = await getContent(page, strapiEndpoint);
-
-    // console.log('page', page);
+export async function fullContentResolve(page: PageContentData, strapiEndpoint: StrapiEndpoints, apiToken?: string, draft?: boolean): Promise<PageContentData> {
+    page = await getContent(page, strapiEndpoint, apiToken, draft);
 
     const tasks: Promise<any>[] = [];
     
     if(page.content){
         page.content.forEach(content => {
-            tasks.push(populateContent(content, strapiEndpoint));
+            tasks.push(populateContent(content, strapiEndpoint, apiToken, draft));
         });
     }
 
@@ -98,20 +100,20 @@ export async function fullContentResolve(page: PageContentData, strapiEndpoint: 
     return page;
 }
 
-export async function populateContent(data: any, strapiEndpoint: StrapiEndpoints) {
+export async function populateContent(data: any, strapiEndpoint: StrapiEndpoints, apiToken?: string, draft?: boolean) {
     const func = populateFuctions[data.__component];
 
     if(func == null){
         return data;
     }
-    return await func(data, strapiEndpoint);
+    return await func(data, strapiEndpoint, apiToken, draft);
 }
 
-async function PopulatePages(pages: PageContentData[], strapiEndpoint: StrapiEndpoints): Promise<PageContentData[]> {
+async function PopulatePages(pages: PageContentData[], strapiEndpoint: StrapiEndpoints, apiToken?: string, draft?: boolean): Promise<PageContentData[]> {
   const resolvedPageContentsTasks: Promise<PageContentData>[] = [];
 
   for (const page of pages) {
-    resolvedPageContentsTasks.push(fullContentResolve(page, strapiEndpoint))
+    resolvedPageContentsTasks.push(fullContentResolve(page, strapiEndpoint, apiToken, draft))
   }
 
   return await Promise.all(resolvedPageContentsTasks);

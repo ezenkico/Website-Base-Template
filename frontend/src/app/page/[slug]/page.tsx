@@ -103,8 +103,6 @@ export default async function DynamicPage({ params }: PageProps) {
       }
     }
 
-    console.error(err);
-
     return (
       <div className="flex items-center justify-center w-full py-24 px-6">
         <div className="max-w-md w-full text-center border border-gray-300 rounded-xl p-8">

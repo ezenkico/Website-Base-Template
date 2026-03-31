@@ -19,13 +19,7 @@ export default function Carousel({ block, endpoint }: Props) {
   const images = useMemo(() => block.Images ?? [], [block.Images]);
   const [index, setIndex] = useState(0);
 
-  useEffect(() => {
-    console.log("Carousel mounted / updated");
-  });
-
   const goTo = (nextIndex: number) => {
-    console.log("goTo fired", nextIndex);
-
     if (!images.length) return;
 
     if (nextIndex < 0) {

@@ -37,8 +37,6 @@ export default async function RootLayout({
       ],
     });
 
-    console.log(navBarData);
-
     const pages: NavPage[] = navBarData?.data?.pages ?? [];
 
     navItems = [
