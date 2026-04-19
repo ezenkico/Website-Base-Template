@@ -29,8 +29,6 @@ function verifyPreviewToken(token: string): PreviewTokenPayload | null {
 
     const payload = jwt.verify(token, secret) as PreviewTokenPayload;
 
-    console.log("internal payload: ", JSON.stringify(payload))
-
     if (!payload?.documentId) return null;
 
     return {
@@ -46,12 +44,10 @@ function verifyPreviewToken(token: string): PreviewTokenPayload | null {
 
 export default async function PreviewPage({ searchParams }: PreviewPageProps) {
   const { token } = await searchParams;
-  console.log("Check: ", token);
 
   if (!token) notFound();
 
   const payload = verifyPreviewToken(token);
-  console.log("Payload: ", JSON.stringify(payload));
   if (!payload?.documentId) notFound();
 
   const endpoint = getStrapiEndpoint();
@@ -64,19 +60,15 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
     payload.documentId,
     {
       ...populatePageContentBase(),
-      status: "draft",
+      status: "draft"
     },
     apiToken
   );
-
-  console.log(response);
 
   const pageContent = response?.data;
   if (!pageContent) notFound();
 
   const resolvedContent = await fullContentResolve(pageContent, endpoint, apiToken, true);
-
-  console.log("Flarg");
 
   return <BasePageContent page_content={resolvedContent} strapiEndpoint={endpoint} />;
 }

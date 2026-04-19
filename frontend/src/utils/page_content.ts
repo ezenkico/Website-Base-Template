@@ -1,63 +1,48 @@
 import { StrapiEndpoints } from "@/types/strapi";
-import { GetData, getStrapiData, getStrapiDataById } from "./strapi-helper";
+import { GetData, getStrapiData, getStrapiDataById, PopulateObject } from "./strapi-helper";
 
 const populateFuctions: {[key: string]: (data: any, strapiEndpoint: StrapiEndpoints, apiToken?: string, draft?: boolean) => Promise<any>} = {
 }
 
-type ComponentPopulateRegistry = {
-  [componentUID: string]: GetData;
-};
 
-const PAGE_CONTENT_COMPONENTS: Record<string, GetData> = {
-    "text.rich-text": {},
+
+export const PAGE_CONTENT_COMPONENTS: PopulateObject = {
+    "text.rich-text": true,
     "text.text-and-image": {
-        populate: [
-            {
-                field: "Image",
-            },
-        ],
+        populate: {
+        Image: true,
+        Text: true
+        },
     },
     "image.carousel": {
-        populate: [
-            {
-                field: "Images",
-            },
-        ],
+        populate: {
+        Images: true,
+        },
     },
     "image.media": {
-        populate: [
-            {
-                field: "media",
-            },
-        ],
+        populate: {
+        media: true,
+        },
     },
     "content.card-container": {
-        populate: [
-            {
-                field: "Cards",
-                data: {
-                    populate: [
-                        {
-                            field: "Image",
-                        },
-                    ],
-                },
+        populate: {
+        Cards: {
+            populate: {
+            Image: true,
             },
-        ],
+        },
+        },
     },
-}
+};
 
 export function populatePageContentBase(): GetData {
   return {
-    populate: [
-      {
-        field: "content",
-        data: {
+    populate: {
+        content: {
           // NOTE: this assumes you'll extend GetData to support `on`
           on: PAGE_CONTENT_COMPONENTS,
         } as any, // temporary until builder supports `on`
       },
-    ],
   };
 }
 

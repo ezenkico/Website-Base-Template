@@ -24,8 +24,14 @@ export default function RichText({ block }: { block: RichTextBlock }) {
       : "text-left";
 
   return (
-    <div className={alignment}>
-      <StandardMarkdown>{block.body}</StandardMarkdown>
-    </div>
+    // th-rich-text: outer wrapper for rich text block
+    <section className={`th-rich-text w-full self-start place-self-start ${alignment}`}>
+      <StandardMarkdown
+        className="th-rich-text-inner"
+        proseClassName="th-rich-text-prose"
+      >
+        {block.body}
+      </StandardMarkdown>
+    </section>
   );
 }

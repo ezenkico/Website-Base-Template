@@ -15,14 +15,9 @@ export default async function HomePage() {
       strapiEndpoint,
       "home",
       {
-        populate: [
-          {
-            field: "page_content",
-            data: {
-              ...populatePageContentBase(),
-            },
-          },
-        ],
+        populate: {
+          page_content: populatePageContentBase(),
+        },
       }
     );
 

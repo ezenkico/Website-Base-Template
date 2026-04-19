@@ -17,6 +17,16 @@
     "slug": {
       "type": "uid"
     },
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
     "page_content": {
       "type": "relation",
       "relation": "oneToOne",
@@ -28,6 +38,17 @@
       "relation": "manyToMany",
       "target": "api::tag.tag",
       "inversedBy": "blogs"
+    },
+    "excerpt": {
+      "type": "string"
+    },
+    "featured": {
+      "type": "boolean"
+    },
+    "Seo": {
+      "type": "component",
+      "component": "page.seo",
+      "repeatable": false
     }
   }
 }

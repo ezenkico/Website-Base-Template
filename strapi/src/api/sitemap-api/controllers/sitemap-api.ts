@@ -95,24 +95,23 @@ function getSitemapSources(): SitemapSource[] {
           }));
       },
     },
+    {
+      name: "blogs",
+      getEntries: async () => {
+        const pages = await strapi.documents("api::blog.blog").findMany({
+          status: "published",
+          fields: ["slug", "updatedAt"],
+          sort: ["updatedAt:desc"],
+        });
 
-    // Add more sitemap sources later like this:
-    // {
-    //   name: "articles",
-    //   getEntries: async () => {
-    //     const articles = await strapi.documents("api::article.article").findMany({
-    //       status: "published",
-    //       fields: ["slug", "updatedAt"],
-    //     });
-    //
-    //     return articles
-    //       .filter((article: any) => !!article?.slug)
-    //       .map((article: any) => ({
-    //         loc: `${siteUrl}/blog/${article.slug}`,
-    //         lastmod: article.updatedAt,
-    //       }));
-    //   },
-    // },
+        return pages
+          .filter((page: any) => !!page?.slug)
+          .map((page: any) => ({
+            loc: `${siteUrl}/blog/${page.slug}`,
+            lastmod: page.updatedAt,
+          }));
+      }
+    }
   ];
 }
 

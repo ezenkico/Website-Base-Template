@@ -15,6 +15,11 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::page-content.page-content"
+    },
+    "SEO": {
+      "type": "component",
+      "component": "page.seo",
+      "repeatable": false
     }
   }
 }

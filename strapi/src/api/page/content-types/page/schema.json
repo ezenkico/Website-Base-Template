@@ -26,6 +26,11 @@
     "show": {
       "type": "boolean",
       "default": true
+    },
+    "SEO": {
+      "type": "component",
+      "component": "page.seo",
+      "repeatable": false
     }
   }
 }

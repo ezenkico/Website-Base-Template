@@ -45,6 +45,18 @@ export interface ImageMedia extends Struct.ComponentSchema {
   };
 }
 
+export interface PageSeo extends Struct.ComponentSchema {
+  collectionName: 'components_page_seos';
+  info: {
+    displayName: 'SEO';
+  };
+  attributes: {
+    metaDescription: Schema.Attribute.Text;
+    metaTitle: Schema.Attribute.String;
+    shareImage: Schema.Attribute.Media<'images'>;
+  };
+}
+
 export interface TextRichText extends Struct.ComponentSchema {
   collectionName: 'components_text_rich_texts';
   info: {
@@ -66,7 +78,7 @@ export interface TextTextAndImage extends Struct.ComponentSchema {
     Image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     imagePosition: Schema.Attribute.Enumeration<['Left', 'Right']> &
       Schema.Attribute.DefaultTo<'Right'>;
-    Text: Schema.Attribute.RichText;
+    Text: Schema.Attribute.Component<'text.rich-text', false>;
   };
 }
 
@@ -77,6 +89,7 @@ declare module '@strapi/strapi' {
       'content.card-container': ContentCardContainer;
       'image.carousel': ImageCarousel;
       'image.media': ImageMedia;
+      'page.seo': PageSeo;
       'text.rich-text': TextRichText;
       'text.text-and-image': TextTextAndImage;
     }

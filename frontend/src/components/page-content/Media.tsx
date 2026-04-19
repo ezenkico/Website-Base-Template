@@ -12,7 +12,7 @@ type Props = {
   endpoint: StrapiEndpoints;
 };
 
-export default function Media({ block, endpoint }: Props) {
+function MediaComponent({ block, endpoint }: Props) {
   const media = block.media;
 
   if (!media) return null;
@@ -24,48 +24,59 @@ export default function Media({ block, endpoint }: Props) {
 
   if (mime.startsWith("image/")) {
     return (
-      <section className="w-full">
-        <img
-          src={url}
-          alt={media.alternativeText || media.name || ""}
-          className="w-full h-auto rounded-xl object-cover"
-        />
-      </section>
+      // th-media-item th-media-image: image element
+      <img
+        src={url}
+        alt={media.alternativeText || media.name || ""}
+        className="th-media-item th-media-image h-auto w-full rounded-xl object-cover"
+      />
     );
   }
 
   if (mime.startsWith("video/")) {
     return (
-      <section className="w-full">
-        <video controls className="w-full rounded-xl">
-          <source src={url} type={mime} />
-          Your browser does not support the video tag.
-        </video>
-      </section>
+      // th-media-item th-media-video: video element
+      <video controls className="th-media-item th-media-video w-full rounded-xl">
+        <source src={url} type={mime} />
+        Your browser does not support the video tag.
+      </video>
     );
   }
 
   if (mime.startsWith("audio/")) {
     return (
-      <section className="w-full">
-        <audio controls className="w-full">
+      // th-media-audio-wrap: audio container
+      <div className="th-media-audio-wrap w-full">
+        {/* th-media-item th-media-audio: audio element */}
+        <audio controls className="th-media-item th-media-audio w-full">
           <source src={url} type={mime} />
           Your browser does not support the audio element.
         </audio>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="w-full">
+    // th-media-file-wrap: generic file container
+    <div className="th-media-file-wrap">
+      {/* th-media-file-link: download link */}
       <a
         href={url}
         target="_blank"
         rel="noreferrer"
-        className="inline-block rounded-lg border px-4 py-2 hover:bg-gray-50"
+        className="th-media-file-link inline-block rounded-lg border px-4 py-2 hover:bg-gray-50"
       >
         {media.name || "Download file"}
       </a>
+    </div>
+  );
+}
+
+export default function Media(props: Props) {
+  return (
+    // th-media: outer section for media block
+    <section className="th-media w-full">
+      <MediaComponent block={props.block} endpoint={props.endpoint} />
     </section>
   );
 }

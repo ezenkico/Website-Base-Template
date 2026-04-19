@@ -5,9 +5,6 @@
   },
   "options": {},
   "attributes": {
-    "Text": {
-      "type": "richtext"
-    },
     "Image": {
       "type": "media",
       "multiple": false,
@@ -25,6 +22,11 @@
         "Left",
         "Right"
       ]
+    },
+    "Text": {
+      "type": "component",
+      "component": "text.rich-text",
+      "repeatable": false
     }
   },
   "config": {}

@@ -16,21 +16,12 @@ export default async function DynamicPage({ params }: PageProps) {
 
   try {
     const pageData = await getStrapiData(strapiEndpoint, "pages", {
-      filters: [
-        {
-          field: "slug",
-          operator: "$eq",
-          value: slug,
-        }
-      ],
-      populate: [
-        {
-          field: "page_content",
-          data: {
-            ...populatePageContentBase(),
-          },
-        },
-      ],
+      filters: {
+        slug: { $eq: slug },
+      },
+      populate: {
+        page_content: populatePageContentBase(),
+      },
       pagination: {
         page: 1,
         pageSize: 1,

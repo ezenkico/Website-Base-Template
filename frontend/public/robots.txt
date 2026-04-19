@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://{Your Website Here}/api/sitemap.xml

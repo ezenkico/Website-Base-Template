@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import { getStrapiEndpoint } from "@/lib/strapi";
-import { getStrapiData } from "@/utils/strapi-helper";
+import { getStrapiData, getFullImageUrl } from "@/utils/strapi-helper";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +17,31 @@ type NavPage = {
   slug?: string;
 };
 
+type LayoutData = {
+  theme?: {
+    Name?: string;
+    CssPath?: string;
+  };
+  Logo?: any;
+  Favicon?: any;
+};
+
+async function getLayoutData(strapiEndpoint: ReturnType<typeof getStrapiEndpoint>) {
+  try {
+    const layoutDataResponse = await getStrapiData(strapiEndpoint, "layout-data", {
+      populate: {
+        theme: true,
+        Logo: true,
+        Favicon: true,
+      }
+    });
+
+    return (layoutDataResponse?.data as LayoutData | undefined) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export default async function RootLayout({
   children,
 }: {
@@ -28,14 +53,19 @@ export default async function RootLayout({
     { label: "Home", href: "/" },
   ];
 
+  let logo = "";
+  let themeCssPath = "";
+
   try {
-    const navBarData = await getStrapiData(strapiEndpoint, "nav-bar", {
-      populate: [
-        {
-          field: "pages",
+    const tasks: Promise<any>[] = [
+      getStrapiData(strapiEndpoint, "nav-bar", {
+        populate: {
+          pages: true,
         },
-      ],
-    });
+      }),
+      getLayoutData(strapiEndpoint)
+    ];
+    const [navBarData, layoutData] = await Promise.all(tasks);
 
     const pages: NavPage[] = navBarData?.data?.pages ?? [];
 
@@ -47,17 +77,28 @@ export default async function RootLayout({
           label: page.Label as string,
           href: `/page/${page.slug}`,
         })),
+      { label: "Blog", href: "/blog" },
     ];
+
+    if (layoutData?.Logo) {
+      logo = getFullImageUrl(layoutData.Logo, strapiEndpoint) || "";
+    }
+
+    if (layoutData?.theme?.CssPath) {
+      themeCssPath = layoutData.theme.CssPath;
+    }
   } catch {
-    // keep fallback navItems
+    // keep fallback theme/logo
   }
 
   return (
     <html lang="en">
-      <head />
+      <head>
+        {themeCssPath ? <link rel="stylesheet" href={themeCssPath} /> : null}
+      </head>
       <body>
-        <Navbar navItems={navItems} />
-        <main>{children}</main>
+        <Navbar navItems={navItems} logo={logo} />
+        <main className="th-main">{children}</main>
       </body>
     </html>
   );

@@ -1,48 +1,52 @@
 import type { Core } from '@strapi/strapi';
 import jwt from "jsonwebtoken";
 
+function generateToken(params: Core.Config.Shared.ConfigParams, documentId: string, uid: string){
+  const secret = params.env("PREVIEW_SECRET");
 
-const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Admin => ({
+  return jwt.sign(
+    {
+      uid,
+      documentId,
+    },
+    secret,
+    {
+      expiresIn: "15m",
+    }
+  );
+}
+
+const config = (params: Core.Config.Shared.ConfigParams): Core.Config.Admin => ({
   auth: {
-    secret: env('ADMIN_JWT_SECRET'),
+    secret: params.env('ADMIN_JWT_SECRET'),
   },
   apiToken: {
-    salt: env('API_TOKEN_SALT'),
+    salt: params.env('API_TOKEN_SALT'),
   },
   transfer: {
     token: {
-      salt: env('TRANSFER_TOKEN_SALT'),
+      salt: params.env('TRANSFER_TOKEN_SALT'),
     },
   },
   secrets: {
-    encryptionKey: env('ENCRYPTION_KEY'),
+    encryptionKey: params.env('ENCRYPTION_KEY'),
   },
   flags: {
-    nps: env.bool('FLAG_NPS', true),
-    promoteEE: env.bool('FLAG_PROMOTE_EE', true),
+    nps: params.env.bool('FLAG_NPS', true),
+    promoteEE: params.env.bool('FLAG_PROMOTE_EE', true),
   },
   preview: {
     enabled: true,
     config: {
       async handler(uid, { documentId }) {
-        if (uid !== "api::page-content.page-content") {
-          return null;
+        const token = generateToken(params, documentId, uid);
+        switch(uid){
+          case "api::page-content.page-content":
+            return `/preview/page-content?token=${encodeURIComponent(token)}`;
+          case "api::blog.blog":
+            return `/preview/blog?token=${encodeURIComponent(token)}`;
         }
-
-        const secret = env("PREVIEW_SECRET");
-
-        const token = jwt.sign(
-          {
-            uid,
-            documentId,
-          },
-          secret,
-          {
-            expiresIn: "15m",
-          }
-        );
-
-        return `/preview/page-content?token=${encodeURIComponent(token)}`;
+        return null;
       },
     },
   }

@@ -8,175 +8,87 @@ import type {
   StrapiRegisterRequest,
   StrapiMedia
 } from "@/types/strapi";
+import qs from "qs";
 
-export interface LogicalFilter {
-  field: string | string[];
-  operator: string; // e.g., "$eq", "$contains"
-  value: string;
+export type StrapiPrimitive = string | number | boolean | null;
+
+export type StrapiFilterValue =
+  | StrapiPrimitive
+  | StrapiPrimitive[]
+  | {
+      [operator: string]: StrapiPrimitive | StrapiPrimitive[];
+    };
+
+export interface StrapiFilters {
+  [field: string]:
+    | StrapiFilterValue
+    | StrapiFilters
+    | StrapiFilters[]
+    | undefined;
+  $and?: StrapiFilters[];
+  $or?: StrapiFilters[];
+  $not?: StrapiFilters;
 }
 
-export interface CombineFilter {
-  type: "$and" | "$or";
-  filters: Filter[];
-}
+export type StrapiSort =
+  | string
+  | string[]
+  | {
+      field: string;
+      order: "asc" | "desc";
+    }
+  | {
+      field: string;
+      order: "asc" | "desc";
+    }[];
 
-export type Filter = LogicalFilter | CombineFilter;
+export type PopulateValue =
+  | true
+  | {
+      fields?: string[];
+      sort?: StrapiSort;
+      filters?: StrapiFilters;
+      populate?: PopulateObject;
+      pagination?: {
+        page: number;
+        pageSize: number;
+      };
+      on?: {
+        [componentUID: string]: {
+          fields?: string[];
+          sort?: StrapiSort;
+          filters?: StrapiFilters;
+          populate?: PopulateObject;
+          pagination?: {
+            page: number;
+            pageSize: number;
+          };
+        };
+      };
+      status?: "draft" | "published";
+    };
+
+export interface PopulateObject {
+  [field: string]: PopulateValue;
+}
 
 export interface GetData {
   fields?: string[];
-  sort?: {
-    field: string;
-    type: "asc" | "desc";
-  };
-  filters?: Filter[];
-  populate?: {
-    field: string;
-    data?: GetData;
-  }[];
+  sort?: StrapiSort;
+  filters?: StrapiFilters;
+  populate?: PopulateObject;
   pagination?: {
     page: number;
     pageSize: number;
   };
   on?: {
-    [componentUID: string]: GetData;
+    [componentUID: string]: Omit<GetData, "on">;
   };
-  status?: "draft" | "published"
+  status?: "draft" | "published";
 }
 
-interface KeyChain{
-    path: string[],
-    value: string
-}
-
-function setupFilter(filter: Filter, prefix: string[] = []): KeyChain[] {
-    const result: KeyChain[] = [];
-    if ("type" in filter) {
-        filter.filters.forEach((f, j) => {
-            setupFilter(f, [...prefix, filter.type, j.toString()]).forEach(r => {
-                result.push(r);
-            });
-        });
-    } else {
-        const fields = Array.isArray(filter.field) ? filter.field : [filter.field];
-        result.push({
-            path: [
-                ...prefix,
-                ...fields,
-                filter.operator
-            ],
-            value: filter.value
-        });
-    }
-    return result;
-}
-
-function buildStrapiItems(query: GetData): KeyChain[]{
-    const result: KeyChain[] = [];
-
-    if (query.fields?.length) {
-        query.fields.forEach((f, i) => {
-            result.push({
-                path: [
-                    "fields",
-                    i.toString()
-                ],
-                value: f
-            });
-        });
-    }
-
-    if(query.sort){
-        result.push({
-            path: [
-                "sort"
-            ],
-            value: `${query.sort.field}:${query.sort.type}`
-        });
-    }
-
-    if (query.filters?.length) {
-        query.filters.forEach(filter => {
-            setupFilter(filter, ["filters"]).forEach(f => result.push(f));
-        });
-    }
-
-    if (query.populate?.length){
-        query.populate.forEach((pop, i) => {
-            if(pop.data){
-                const nested = buildStrapiItems(pop.data);
-
-                nested.forEach(n => {
-                    n.path.unshift("populate", pop.field);
-                    result.push(n);
-                });
-            }else{
-                result.push({
-                    path: ["populate"],
-                    value: pop.field
-                });
-            }
-        });
-    }
-
-    if(query.pagination){
-        result.push({
-            path: [
-                "pagination",
-                "page"
-            ],
-            value: query.pagination.page.toString()
-        });
-        result.push({
-            path: [
-                "pagination",
-                "pageSize"
-            ],
-            value: query.pagination.pageSize.toString()
-        });
-    }
-
-    if(query.status){
-      result.push({
-        path: ["status"],
-        value: query.status
-      })
-    }
-
-    if (query.on) {
-        Object.entries(query.on).forEach(([component, data]) => {
-            const nested = buildStrapiItems(data);
-
-            if (nested.length === 0) {
-            result.push({
-                path: ["on", component],
-                value: "*",
-            });
-            } else {
-            nested.forEach(n => {
-                n.path.unshift("on", component);
-                result.push(n);
-            });
-            }
-        });
-    }
-
-    return result;
-}
-
-export function buildStrapiQuery(query: GetData): string {
-  const params = new URLSearchParams();
-
-  const items = buildStrapiItems(query);
-
-  items.forEach(item => {
-    const [base, ...rest] = item.path;
-    if(base){
-        const fullKey = `${base}${rest.map(p => `[${p}]`).join("")}`;
-        params.append(fullKey, item.value);
-    }
-  })
-
-  return params.toString();
+function buildStrapiQuery(data: GetData){
+  return qs.stringify(data, { encodeValuesOnly: true });
 }
 
 export async function getStrapiData(
